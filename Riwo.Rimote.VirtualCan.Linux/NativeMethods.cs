@@ -22,17 +22,27 @@ namespace Riwo.Rimote.VirtualCan.Linux
             CAN_RAW_FD_FRAMES = 5,
         }
 
+        #region LIBC Methods
+
+        /// https://man7.org/linux/man-pages/man2/socket.2.html
         [DllImport("libc", EntryPoint = "socket", SetLastError = true)]
         private static extern int socket(int addressFamily, int socketType, int protocolType);
 
+        /// https://man7.org/linux/man-pages/man2/bind.2.html
         [DllImport("libc", EntryPoint = "bind")]
         private static extern int Bind(IntPtr socketHandle, byte[] addr, int addrBytes);
 
+        /// https://linux.die.net/man/2/setsockopt
         [DllImport("libc", EntryPoint = "setsockopt")]
         private static extern int SetSockOpt(IntPtr socketHandle, int level, int optname, byte[] optval, int optlen);
 
+        /// https://man7.org/linux/man-pages/man2/ioctl.2.html
         [DllImport("libc", EntryPoint = "ioctl")]
         private static extern int Ioctl(int fd, uint cmd, byte[] data);
+
+        #endregion
+
+        #region Public Methods
 
         public static void Bind(IntPtr socketHandle, string name)
         {
@@ -64,6 +74,10 @@ namespace Riwo.Rimote.VirtualCan.Linux
             return new IntPtr(socketPtr);
         }
 
+        #endregion
+
+        #region Private methods
+
         private static int GetCanInterface(IntPtr socketHandle, string adapterName)
         {
             var deviceNameBytes = Encoding.ASCII.GetBytes(adapterName);
@@ -81,5 +95,7 @@ namespace Riwo.Rimote.VirtualCan.Linux
             // The interface is at position 16-19
             return BitConverter.ToInt32(ioIn, 16);
         }
+
+        #endregion
     }
 }
